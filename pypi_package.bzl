@@ -92,12 +92,13 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
     building a Python package. The only difference is that some arguments accept Bazel lables
     rather than strings.
 
-    The name must be of the format "{name}_pkg". One can then run "{name}_register" to register
-    the package with PyPi for the first time or "{name}_update" to add the current code under
-    the "version" number. See the README.md file for more details.
+    The name must be of the format `{name}_pkg`. One can then run `{name}_register` to register
+    the package with PyPi for the first time or `{name}_upload` to add the current code under
+    the `version` number. For both these binaries you need to specify the `pypi_user` and
+     `pypi_pass` argument, with your credentials for PyPi. See the README.md file for more details.
 
     Args:
-      name: A unique name for this rule. Must end with "_pkg".
+      name: A unique name for this rule. Must end with `_pkg`.
       version: A version string which uniquely identifies the current version of the code. See
           https://packaging.python.org/en/latest/distributing/#version for more details.
       description: A string with the short description of the package.
@@ -133,7 +134,7 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
         author = author,
         author_email = author_email,
 	packages = ', '.join(['"%s"' % p[1:] for p in packages]),
-	install_requires = ', 'join(['"%s"' % i for i in install_requires]),
+	install_requires = ', '.join(['"%s"' % i for i in install_requires]),
         license = license,
         test_suite = test_suite,
         tests_require = ', '.join(['"%s"' % r for r in tests_require])
@@ -168,7 +169,7 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
     native.sh_binary(
         name = short_name + "_register",
 	srcs = [":" + short_name + "_register_invoker"],
-	data = [":" + name, long_description] + packages
+	data = packages + [":" + name, long_description]
     )
 
     native.genrule(
@@ -181,5 +182,5 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
     native.sh_binary(
         name = short_name + "_upload",
 	srcs = [":" + short_name + "_upload_invoker"],
-	data = [":" + name, long_description] + packages
+	data = packages + [":" + name, long_description]
     )
