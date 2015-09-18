@@ -1,4 +1,4 @@
-"""Bazel macros for building Python packages and interacting with PyPi"""
+"""A Bazel macro for building Python packages and interacting with PyPi"""
 
 _SETUP_PY_TEMPLATE = """from setuptools import setup
 
