@@ -80,6 +80,41 @@ Each time a new version needs to be updated, the `version` field must be updated
 
 The rule tries to mimick the behavior of the `setup.py` file as described [here][dist], but with extra integration with [Bazel][bazel], such as accepting labels for local libraries and the `README.md` file etc.
 
+## Interaction With Other Packages ##
+
+In the `install_requires` and `tests_require` fields, one can specify the required dependencies for a installing the package and for testing it. These operate at the [PyPi][pypi] level however, so they are specified at regular strings. However, if one depends on a repository for a package which also uses [Bazel][bazel] and this macro, then one can depend on that rule, rather than just specifying it as a string.
+
+For example, the `WORKSPACE` file for the [SDHash][sdhash] project, looks like this:
+
+```Python
+git_repository(
+    name = "tabletest",
+    remote = "https://github.com/horia141/tabletest.git",
+    tag = "v1.0.3",
+)
+```
+
+The `pypi_package` rule references the [tabletest][tabletest] package like this:
+
+```Python
+pypi_package(
+    name = "sdhash_pkg",
+    version = "0.0.3",
+    description = "Library for image hashing and deduplication.",
+    long_description = "README.md",
+    classifiers = [...],
+    keywords = "photo image gif hash perceptual dedup deduplication fft",
+    url = "http://github.com/horia141/sdhash",
+    author = "Horia Coman",
+    author_email = "horia141@gmail.com",
+    license = "MIT",
+    packages = [":sdhash"],
+    install_requires = ["pillow", "numpy", "scipy"],
+    test_suite = "nose.collector",
+    tests_require = ["nose", "@tabletest//:tabletest_pkg"],
+)
+```
+
 ## Requirements ##
 
 A working installation of [Bazel][bazel] and everything in [Packaging and Distributing Projects][dist].
@@ -88,3 +123,4 @@ A working installation of [Bazel][bazel] and everything in [Packaging and Distri
 [pypi]: https://pypi.python.org/pypi
 [dist]: https://packaging.python.org/en/latest/distributing/
 [tabletest]: https://github.com/horia141/tabletest
+[sdhash]: https://github.com/horia141/sdhash

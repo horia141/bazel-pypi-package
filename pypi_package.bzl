@@ -1,5 +1,6 @@
 """A Bazel macro for building Python packages and interacting with PyPi"""
 
+
 _SETUP_PY_TEMPLATE = """from setuptools import setup
 
 def readme():
@@ -84,7 +85,8 @@ twine upload dist/* -u $$user -p $$pass
 
 def pypi_package(name, version, description, long_description, classifiers, keywords, url,
                  author, author_email, license, packages, install_requires = [],
-                 test_suite = "nose.collector", tests_require = ["nose"], visibility=None):
+                 test_suite = "nose.collector", tests_require = ["nose"],
+		 visibility=["//visibility:public"]):
     """A `pypi_package` is a python package and modulates interaction with the PyPi repository.
 
     The arguments to this rule correspond to the ones for the `setup` function from 
@@ -112,9 +114,11 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
       author_email: The email for the author.
       license: The type of license to use.
       packages: A list of `py_library` labels to be included in the package.
-      install_requires: A list of strings which are names of required packages for this one.
+      install_requires: A list of strings or `_pkg` labels which are names of required packages
+          for this one.
       test_suite: Name of the test suite runner.
-      tests_require: A list of strings which are names of required testing packages for this one.
+      tests_require: A list of strings or `_pkg` labels which are names of required testing
+          packages for this one.
       visibility: Rule visibility.
     """
       
@@ -122,7 +126,7 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
        fail('pypi_package name must end in "_pkg"')
 
     short_name = name[0:-4]
-                 
+
     setup_py = _SETUP_PY_TEMPLATE.format(
         name = short_name,
         version = version,
@@ -134,10 +138,10 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
         author = author,
         author_email = author_email,
 	packages = ', '.join(['"%s"' % p[1:] for p in packages]),
-	install_requires = ', '.join(['"%s"' % i for i in install_requires]),
+	install_requires = ', '.join(['"%s"' % _translate_package_name(i) for i in install_requires]),
         license = license,
         test_suite = test_suite,
-        tests_require = ', '.join(['"%s"' % r for r in tests_require])
+        tests_require = ', '.join(['"%s"' % _translate_package_name(r) for r in tests_require])
     )
 
     manifest_in = _MANIFEST_IN_TEMPLATE.format(
@@ -157,30 +161,43 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
             (" && mkdir $(GENDIR)/%s" % short_name) +
             (" && cp $(SRCS) $(GENDIR)/%s" % short_name) +
             (" && mv $(GENDIR)/%s/%s $(GENDIR)" % (short_name, long_description)),
+	visibility = visibility,
     )
 
     native.genrule(
         name = short_name + "_register_invoker",
 	srcs = [":" + name],
 	outs = ["register_invoker.sh"],
-	cmd = ("echo '%s' > $(location register_invoker.sh)" % register_invoker)
+	cmd = ("echo '%s' > $(location register_invoker.sh)" % register_invoker),
+	visibility = visibility,
     )
 
     native.sh_binary(
         name = short_name + "_register",
 	srcs = [":" + short_name + "_register_invoker"],
-	data = packages + [":" + name, long_description]
+	data = packages + [":" + name, long_description],
+	visibility = visibility,
     )
 
     native.genrule(
         name = short_name + "_upload_invoker",
 	srcs = [":" + name],
 	outs = ["upload_invoker.sh"],
-	cmd = ("echo '%s' > $(location upload_invoker.sh)" % upload_invoker)
+	cmd = ("echo '%s' > $(location upload_invoker.sh)" % upload_invoker),
+	visibility = visibility,
     )
 
     native.sh_binary(
         name = short_name + "_upload",
 	srcs = [":" + short_name + "_upload_invoker"],
-	data = packages + [":" + name, long_description]
+	data = packages + [":" + name, long_description],
+	visibility = visibility,
     )
+
+
+def _translate_package_name(name):
+    if not name.endswith('_pkg'):
+        return name
+
+    idx = name.find('//:')
+    return name[idx+3:-4]
