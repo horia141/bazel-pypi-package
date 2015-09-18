@@ -4,9 +4,9 @@ A [Bazel][bazel] macro for building Python packages and interacting with PyPi. T
 
 ## Rationale ##
 
-[Bazel][bazel] offers the `py_library`, `py_test` and `py_binary` rules. These are great for working inside a single application codebase. However, many Python projects are libraries, and are exported as packages in the [Python Package Index - PyPi][pypi]. Bazel does not offer anything for integrating with it, at the moment.
+[Bazel][bazel] offers the `py_library`, `py_test` and `py_binary` rules. These are great for working inside a single application codebase. However, many Python projects are libraries, and are exported as packages in the [Python Package Index - PyPi][pypi]. Bazel does not offer anything for integrating with it, at the moment. As such, all the interaction is done through the regular mechanisms described in [Packaging and Distributing Projects][dist]. This implies the existance of the `setup.py`, `MANIFEST.in` and `.pypirc` files, as well as the existance of `build`, `dist`, '*.egg-info` and other top-level directories which contains Python build artifacts. This state of affairs is quite messy. There are two separate build systems present, each with their configuration and each producing different forms of output clutter. Ideally we'd want only one - Bazel.
 
-The goal of this project is to correct this state of affairs. At some point in the future, I should integrate it with regular Bazel.
+The goal of this project is to correct this state of affairs, by providing simple a small set of tools which encapsulate all the configuration and steps necessary for managing the interaction with the Python package index. At some point in the future, it should be integrated with regular Bazel.
 
 ## Installation ##
 
@@ -14,3 +14,4 @@ The goal of this project is to correct this state of affairs. At some point in t
 
 [bazel]: http://bazel.io
 [pypi]: https://pypi.python.org/pypi
+[dist]: https://packaging.python.org/en/latest/distributing/
