@@ -80,6 +80,10 @@ Each time a new version needs to be updated, the `version` field must be updated
 
 The rule tries to mimick the behavior of the `setup.py` file as described [here][dist], but with extra integration with [Bazel][bazel], such as accepting labels for local libraries and the `README.md` file etc.
 
+== Requirements ==
+
+A working installation of [Bazel][bazel] and everything in [Packaging and Distributing Projects][dist].
+
 [bazel]: http://bazel.io
 [pypi]: https://pypi.python.org/pypi
 [dist]: https://packaging.python.org/en/latest/distributing/
