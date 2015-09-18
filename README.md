@@ -82,7 +82,7 @@ The rule tries to mimick the behavior of the `setup.py` file as described [here]
 
 ## Interaction With Other Packages ##
 
-In the `install_requires` and `tests_require` fields, one can specify the required dependencies for a installing the package and for testing it. These operate at the [PyPi][pypi] level however, so they are specified at regular strings. However, if one depends on a repository for a package which also uses [Bazel][bazel] and this macro, then one can depend on that rule, rather than just specifying it as a string.
+In the `install_requires` and `tests_require` fields, one can specify the required dependencies for installing the package and for testing it. These operate at the [PyPi][pypi] level however, so they are specified as regular strings. However, if one depends on a repository for a package which also uses [Bazel][bazel] and this macro, then one can depend on that rule, rather than just specifying it as a string.
 
 For example, the `WORKSPACE` file for the [SDHash][sdhash] project, looks like this:
 
@@ -114,6 +114,16 @@ pypi_package(
     tests_require = ["nose", "@tabletest//:tabletest_pkg"],
 )
 ```
+
+The `tests_require` line could also have looked like this:
+
+```Python
+...
+    tests_require = ["nose", "tabletest"],
+...
+```
+
+In both cases, the package must exist in PyPi.
 
 ## Requirements ##
 
