@@ -158,7 +158,7 @@ def pypi_package(name, version, description, long_description, classifiers, keyw
         outs = ["setup.py", "MANIFEST.in"],
         cmd = ("echo '%s' > $(location setup.py)" % setup_py) + 
             (" && echo '%s' > $(location MANIFEST.in)" % manifest_in) +
-            (" && mkdir $(GENDIR)/%s" % short_name) +
+            (" && mkdir -p $(GENDIR)/%s" % short_name) +
             (" && cp $(SRCS) $(GENDIR)/%s" % short_name) +
             (" && mv $(GENDIR)/%s/%s $(GENDIR)" % (short_name, long_description)),
 	visibility = visibility,
